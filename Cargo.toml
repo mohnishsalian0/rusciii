@@ -1,10 +1,37 @@
+
 [package]
 name = "rusciii"
 version = "0.1.0"
 edition = "2021"
 
+[package.metadata.leptos]
+# Path, relative to root, to generat rust code to
+gen_file = "src/server/generated.rs"
+# Path to the source index.html file
+index_file = "index.html"
+# On which port to serve the client side rendered site (when using --csr option)
+csr_port = 3000
+# The port to use for automatic reload monitoring
+reload_port = 3001
+
+[package.metadata.leptos.style]
+# Main style file. If scss or sass then it will be compiled to css.
+# the parent folder will be watched for changes
+file = "style/tailwind.css"
+# A https://browsersl.ist query
+browserquery = "defaults"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dioxus = "0.5.1"
+base64 = "0.22"
+clipboard = "0.5.0"
+console_error_panic_hook = "0.1.7"
 image = "0.25.1"
+leptos = { version = "0.6.11", features = ["csr", "nightly"] }
+regex = "1.10"
+serde = "1.0.200"
+serde_json = "1.0.116"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["File", "FileList", "FileReaderSync"] }
