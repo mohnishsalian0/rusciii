@@ -1,0 +1,15 @@
+TODO:
+Read image file with websys filereader -> convert to base64 -> convert to DynamicImage with load from memory method ✅
+Cache char properties of fonts in a hashmap
+Dynamically draw font chars and calculate properties
+Video support
+Read from default ramp
+Build UI
+Dither
+Color support: ANSI done ⏳
+Copy to clipboard ✅
+Optimize the resize operation (run in release) ✅
+
+COMMANDS:
+../../tailwindcss -i ~/Project/rusciii/input.css -o ~/Project/rusciii/style/tailwind.css --watch
+trunk serve --open
