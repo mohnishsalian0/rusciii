@@ -2,7 +2,11 @@
 module.exports = {
   content: ["*.html", "./src/**/*.rs",],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ["Fredoka"],
+    },
+    extend: {
+    },
   },
   plugins: [],
 }

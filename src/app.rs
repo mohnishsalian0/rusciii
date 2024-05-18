@@ -1,7 +1,13 @@
-use image::DynamicImage;
+use image::{
+    imageops::{self, brighten},
+    DynamicImage, GrayImage,
+};
 use leptos::*;
 
-use crate::sections::{artpanel::*, sidebar::*};
+use crate::{
+    imageHandler::ImageHandler,
+    sections::{artpanel::*, sidebar::*},
+};
 
 #[derive(Clone)]
 pub struct Test {
@@ -16,13 +22,26 @@ impl Test {
 
 #[component]
 pub fn App() -> impl IntoView {
-    let (image, set_image) = create_signal::<Option<DynamicImage>>(None);
-    let grayImage = move || image().map(|img| img.into_luma8());
+    let (image, setImage) = create_signal::<Option<DynamicImage>>(None);
+    let (gray, setGray) = create_signal::<Option<GrayImage>>(None);
+    let (contrast, setContrast) = create_signal::<f32>(0.0);
+    let (brightness, setBrightness) = create_signal::<i32>(0);
+    let (size, setSize) = create_signal::<u16>(100);
+    let (resizedImage, setResizedImage) = create_signal::<Option<GrayImage>>(None);
+    let filteredImage = move || {
+        with!(
+            |resizedImage, contrast, brightness| resizedImage.as_ref().map(|img| brighten(
+                &imageops::contrast(img, *contrast),
+                *brightness
+            )
+            .stretchContrast())
+        )
+    };
 
     view! {
-        <div class="w-full h-full p-8 bg-amber-100 flex flex-row space-x-8">
-            <Sidebar setImage=set_image/>
-            <ArtPanel grayImage/>
+        <div class="w-full h-full flex flex-row divide-x divide-amber-500">
+            <Sidebar setImage gray setGray setResizedImage setContrast setBrightness/>
+            <ArtPanel image = filteredImage/>
         </div>
     }
 }

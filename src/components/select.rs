@@ -4,11 +4,11 @@ use ::leptos::*;
 pub fn Select(name: String, label: String) -> impl IntoView {
     view! {
         <fieldset>
-            <label class="text-neutral-500" for=name.clone()>
+            <label class="text-xl font-medium text-indigo-500" for=name.clone()>
                 {label}
             </label>
             <select
-                class="w-full p-2 rounded-sm bg-neutral-50 border border-neutral-200 text-slate-900"
+                class="w-full p-2 rounded-sm bg-transparent border border-amber-500 text-sm"
                 name=name.clone()
                 id=name
             >

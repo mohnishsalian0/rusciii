@@ -17,9 +17,9 @@ where
 
     view! {
         <button class="w-full relative aspect-video" on:click=onClick>
-            <div class="absolute inset-0 p-2 border border-dashed border-neutral-300 rounded-md flex flex-col justify-center">
-                <h4 class="text-base text-center text-neutral-500">Upload image</h4>
-                <p class="text-sm font-extralight text-neutral-400 text-center">
+            <div class="absolute inset-0 p-2 border border-dashed border-amber-500 rounded-md flex flex-col justify-center">
+                <h4 class="text-xl font-medium text-center text-indigo-500">Upload image</h4>
+                <p class="text-sm font-normal text-center">
                     Supported image: png, jpg, jpeg, Max size: 5MB
                 </p>
             </div>

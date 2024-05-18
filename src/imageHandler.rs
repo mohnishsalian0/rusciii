@@ -1,4 +1,50 @@
-use image::{DynamicImage, GenericImageView, GrayImage, RgbImage};
+use image::{DynamicImage, GenericImage, GenericImageView, GrayImage, Luma, RgbImage};
+use leptos::*;
+
+pub trait ImageHandler {
+    fn downsample(self) -> Self;
+    fn stretchContrast(self) -> Self;
+}
+
+impl ImageHandler for GrayImage {
+    fn downsample(self) -> Self {
+        let (w, h) = self.dimensions();
+        let (fw, fh) = (7, 14);
+        let (w, h) = (((w + fw - 1) / fw) as usize, ((h + fh - 1) / fh) as usize);
+        let mut avgIntens = vec![vec![(0_u32, 0_u32); w]; h];
+        for (x, y, p) in self.enumerate_pixels() {
+            let (nx, ny) = ((x / fw) as usize, (y / fh) as usize);
+            avgIntens[ny][nx].0 += p[0] as u32;
+            avgIntens[ny][nx].1 += 1;
+        }
+
+        let mut res = GrayImage::new(w as u32, h as u32);
+        avgIntens.iter().enumerate().for_each(|(x, row)| {
+            row.iter().enumerate().for_each(|(y, &(i, c))| {
+                res.put_pixel(
+                    y as u32,
+                    x as u32,
+                    Luma([(i as f64 / c as f64).round() as u8]),
+                );
+            })
+        });
+
+        res
+    }
+
+    fn stretchContrast(mut self) -> Self {
+        let (mut minP, mut maxP): (u8, u8) = (255, 0);
+        self.iter().for_each(|&p| {
+            minP = minP.min(p);
+            maxP = maxP.max(p);
+        });
+        let rangeP = maxP - minP;
+        self.enumerate_pixels_mut().for_each(|(x, y, p)| {
+            p[0] = ((p[0] - minP) as f32 * 255.0 / rangeP as f32).round() as u8
+        });
+        self
+    }
+}
 
 pub fn grayscale(img: &RgbImage) -> Vec<Vec<u8>> {
     let (w, h) = img.dimensions();
@@ -9,23 +55,4 @@ pub fn grayscale(img: &RgbImage) -> Vec<Vec<u8>> {
         result[y as usize][x as usize] = lum;
     }
     result
-}
-
-pub fn downsample(img: &[Vec<u8>], w: u32, h: u32) -> Vec<Vec<u8>> {
-    let mut avgIntensity: Vec<Vec<u32>> = vec![vec![0; w as usize]; h as usize];
-    for (x, row) in img.iter().enumerate() {
-        for (y, &value) in row.iter().enumerate() {
-            let (nx, ny) = (x / 14, y / 7);
-            avgIntensity[nx][ny] += value as u32;
-        }
-    }
-
-    avgIntensity
-        .iter()
-        .map(|row| {
-            row.iter()
-                .map(|&i| (i as f64 / 98.0).round() as u8)
-                .collect()
-        })
-        .collect()
 }

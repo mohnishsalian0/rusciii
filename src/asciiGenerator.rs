@@ -150,6 +150,8 @@ pub fn copyToClipboard(art: &[Vec<u8>]) {
 
 #[cfg(test)]
 mod tests {
+    use crate::imageHandler::ImageHandler;
+
     use super::*;
     use image::io::Reader as ImageReader;
     use image::{imageops::FilterType, GenericImageView};
@@ -183,7 +185,8 @@ mod tests {
 
         let font = "menlo".to_string();
 
-        let chars = "5,;AsrS3.&hX# 2M@9:BiGH".to_string();
+        // let chars = "5,;AsrS3.&hX# 2M@9:BiGH".to_string();
+        let chars = "@#MBHA&Gh93X25Sisr;:,. ".to_string();
 
         let imagePath = PathBuf::from("assets/testImage4.jpeg");
         let img = ImageReader::open(imagePath).expect("Image not found");
@@ -192,18 +195,18 @@ mod tests {
         let nw = 1000;
         let nh = nw * h / w;
         let mut img = img
-            .adjust_contrast(5.6)
-            .brighten(50)
-            .resize(nw, nh, FilterType::Nearest)
-            .resize_exact(nw / 7, nh / 14, FilterType::Lanczos3);
+            .adjust_contrast(16.1)
+            .resize(nw, nh, FilterType::Nearest);
         let imgRgb = img.to_rgb8();
-        let gray = img.into_luma8();
+        let gray = img.into_luma8().downsample().stretchContrast();
 
         let ascGen = AsciiGenerator::new();
 
         let asciiArt = ascGen.convert(&font, &chars, &gray);
 
-        let asciiArt = addAnsiTrueColor(&asciiArt, &imgRgb);
+        display(&asciiArt);
+
+        // let asciiArt = addAnsiTrueColor(&asciiArt, &imgRgb);
 
         // displayColored(&asciiArt);
 

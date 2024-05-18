@@ -1,8 +1,5 @@
 use base64::{self, engine::general_purpose, Engine};
-use image::{
-    imageops::{brighten, contrast, resize, FilterType},
-    DynamicImage, GenericImageView, GrayImage, ImageFormat,
-};
+use image::{imageops::FilterType, DynamicImage, GenericImageView, GrayImage, ImageFormat};
 use leptos::*;
 use regex::Regex;
 use wasm_bindgen::{closure::Closure, JsCast};
@@ -11,19 +8,12 @@ use web_sys::{
     Event, FileReader, HtmlInputElement, MouseEvent, Url,
 };
 
-use crate::{
-    components::{select::*, slider::*, upload::*},
-    imageHandler::ImageHandler,
-};
+use crate::components::{select::*, slider::*, upload::*};
 
 #[component]
 pub fn Sidebar(
-    setImage: WriteSignal<Option<DynamicImage>>,
-    gray: ReadSignal<Option<GrayImage>>,
-    setGray: WriteSignal<Option<GrayImage>>,
-    setResizedImage: WriteSignal<Option<GrayImage>>,
-    setContrast: WriteSignal<f32>,
-    setBrightness: WriteSignal<i32>,
+    image: RwSignal<Option<DynamicImage>>,
+    setFilteredImage: WriteSignal<Option<GrayImage>>,
 ) -> impl IntoView {
     let uploadRef: NodeRef<html::Input> = create_node_ref();
 
@@ -57,17 +47,17 @@ pub fn Sidebar(
             let img = image::load_from_memory(&bytes)
                 .expect("Failed to convert Uint8Array to DynamicImage");
 
-            // TODO: Plugin filter states to modify image. Reset filter states when a new image is uploaded
-            // image.set(Some(img.resize(nw, nh, FilterType::Nearest).clone()));
-            let gray = img.into_luma8();
-            setGray(Some(gray.clone()));
-
-            let (w, h) = gray.dimensions();
-            let nw = 700;
+            let (w, h) = img.dimensions();
+            let nw = 1000;
             let nh = nw * h / w;
-            setResizedImage(Some(
-                resize(&gray, nw, nh, FilterType::Nearest).downsample(),
-            ));
+            // TODO: Plugin filter states to modify image. Reset filter states when a new image is uploaded
+            // let img = img
+            image.set(Some(img.clone()));
+            setFilteredImage(Some(img.into_luma8()));
+            // .adjust_contrast(16.1)
+            // .brighten(50)
+            // .resize(nw, nh, FilterType::Nearest)
+            // .resize_exact(nw / 7, nh / 14, FilterType::Lanczos3);
         }) as Box<dyn FnMut()>);
 
         reader
@@ -85,47 +75,35 @@ pub fn Sidebar(
     };
 
     let onContrastChange = move |e: Event| {
-        // TODO: Adjust contrast inplace instead of creating new image
         let c: f32 = event_target_value(&e)
             .parse()
             .expect("Contrast should be a number");
         logging::log!("Adjusting contrast to {:?}...", &c);
-        setContrast(c);
+        setFilteredImage(
+            image
+                .get()
+                .as_ref()
+                .map(|img| img.adjust_contrast(c).into_luma8()),
+        );
     };
 
     let onBrightnessChange = move |e: Event| {
-        // TODO: Adjust brightness in place instead of creating a new image
         let b: i32 = event_target_value(&e)
             .parse()
             .expect("Contrast should be a number");
         logging::log!("Adjusting brightness to {:?}...", &b);
-        setBrightness(b);
+        // setImage.update(|img: &mut Option<DynamicImage>| {
+        //     *img = img.as_ref().map(|img| img.brighten(b))
+        // });
+        setFilteredImage(image.get().as_ref().map(|img| img.brighten(b).into_luma8()));
     };
 
-    let onSizeChange = move |e: Event| {
-        let mut nw: u32 = event_target_value(&e)
-            .parse()
-            .expect("Contrast should be a number");
-        nw *= 7;
-        let (w, h) = gray().expect("Gray image should be set").dimensions();
-        let nh = nw * h / w;
-        let filter = if nw > w {
-            FilterType::Nearest
-        } else {
-            FilterType::Triangle
-        };
-        logging::log!("Resizing to {} x {}...", nw, nh);
-        setResizedImage(
-            gray()
-                .as_ref()
-                .map(|img| resize(img, nw, nh, filter).downsample()),
-        );
-    };
+    let onSizeChange = |e: Event| logging::log!("New Size: {:?}", event_target_value(&e));
 
     let onDitherChange = |e: Event| logging::log!("New Dither: {:?}", event_target_value(&e));
 
     view! {
-        <aside class="w-80 h-auto p-8 bg-amber-50 display-flex flex-col space-y-8 overflow-y-auto">
+        <aside class="w-72 h-auto p-5 rounded-xl bg-neutral-50 drop-shadow-lg display-flex flex-col space-y-8 overflow-y-auto">
             {displayImage}
             {displayInput}
             <Select name="font".to_string() label="Font".to_string()/>
