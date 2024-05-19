@@ -28,6 +28,7 @@ pub fn App() -> impl IntoView {
     let (brightness, setBrightness) = create_signal::<i32>(0);
     let (size, setSize) = create_signal::<u16>(100);
     let (resizedImage, setResizedImage) = create_signal::<Option<GrayImage>>(None);
+    let (dither, setDither) = create_signal::<bool>(false);
     let filteredImage = move || {
         with!(
             |resizedImage, contrast, brightness| resizedImage.as_ref().map(|img| brighten(
@@ -40,8 +41,8 @@ pub fn App() -> impl IntoView {
 
     view! {
         <div class="w-full h-full flex flex-row divide-x divide-amber-500">
-            <Sidebar setImage gray setGray setResizedImage setContrast setBrightness/>
-            <ArtPanel image = filteredImage/>
+            <Sidebar setImage gray setGray setResizedImage setContrast setBrightness setDither/>
+            <ArtPanel image=filteredImage dither=dither/>
         </div>
     }
 }

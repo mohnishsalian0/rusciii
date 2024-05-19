@@ -1,4 +1,4 @@
-use ::leptos::*;
+use leptos::*;
 use web_sys::{Event, MouseEvent};
 
 #[component]

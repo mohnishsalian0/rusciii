@@ -12,7 +12,7 @@ use web_sys::{
 };
 
 use crate::{
-    components::{select::*, slider::*, upload::*},
+    components::{select::*, slider::*, toggle::*, upload::*},
     imageHandler::ImageHandler,
 };
 
@@ -24,6 +24,7 @@ pub fn Sidebar(
     setResizedImage: WriteSignal<Option<GrayImage>>,
     setContrast: WriteSignal<f32>,
     setBrightness: WriteSignal<i32>,
+    setDither: WriteSignal<bool>,
 ) -> impl IntoView {
     let uploadRef: NodeRef<html::Input> = create_node_ref();
 
@@ -32,7 +33,9 @@ pub fn Sidebar(
     let displayImage = move || {
         imageUrl().map(|_| {
             // TODO: Add option to delete image and start over
-            Some(view! {<img src=imageUrl alt="Unable to display uploaded image" class="w-full"/>})
+            Some(
+                view! { <img src=imageUrl alt="Unable to display uploaded image" class="w-full"/> },
+            )
         })
     };
 
@@ -79,7 +82,7 @@ pub fn Sidebar(
 
     let displayInput = move || {
         imageUrl().map_or_else(
-            || Some(view! { <Upload onUpload=onImageUpload inputRef=uploadRef/>}),
+            || Some(view! { <Upload onUpload=onImageUpload inputRef=uploadRef/> }),
             |_| None,
         )
     };
@@ -122,13 +125,19 @@ pub fn Sidebar(
         );
     };
 
-    let onDitherChange = |e: Event| logging::log!("New Dither: {:?}", event_target_value(&e));
+    let onDitherChange = move |e: Event| {
+        let c = event_target_checked(&e);
+        if c {
+            logging::log!("Adding dither...");
+        } else {
+            logging::log!("Removing dither...");
+        }
+        setDither(c);
+    };
 
     view! {
         <aside class="w-80 h-auto p-8 bg-amber-50 display-flex flex-col space-y-8 overflow-y-auto">
-            {displayImage}
-            {displayInput}
-            <Select name="font".to_string() label="Font".to_string()/>
+            {displayImage} {displayInput} <Select name="font".to_string() label="Font".to_string()/>
             <Slider
                 name="contrast".to_string()
                 label="Contrast".to_string()
@@ -153,12 +162,9 @@ pub fn Sidebar(
                 value=100
                 onInput=onSizeChange
             />
-            <Slider
+            <Toggle
                 name="dither".to_string()
                 label="Dither".to_string()
-                min=10
-                max=300
-                value=100
                 onInput=onDitherChange
             />
         </aside>

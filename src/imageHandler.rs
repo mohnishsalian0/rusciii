@@ -1,9 +1,12 @@
-use image::{DynamicImage, GenericImage, GenericImageView, GrayImage, Luma, RgbImage};
+use image::{
+    imageops::dither, DynamicImage, GenericImage, GenericImageView, GrayImage, Luma, RgbImage,
+};
 use leptos::*;
 
 pub trait ImageHandler {
     fn downsample(self) -> Self;
     fn stretchContrast(self) -> Self;
+    fn dither(&mut self);
 }
 
 impl ImageHandler for GrayImage {
@@ -43,6 +46,11 @@ impl ImageHandler for GrayImage {
             p[0] = ((p[0] - minP) as f32 * 255.0 / rangeP as f32).round() as u8
         });
         self
+    }
+
+    fn dither(&mut self) {
+        let colorMap: Vec<u8> = (0..=255).collect();
+        // dither(self, &colorMap)
     }
 }
 
