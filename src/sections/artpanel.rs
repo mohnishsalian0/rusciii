@@ -19,7 +19,7 @@ pub fn ArtPanel<F>(image: F, dither: ReadSignal<bool>) -> impl IntoView
 where
     F: Fn() -> Option<GrayImage> + 'static,
 {
-    let font = "menlo".to_string();
+    let font = "courierPrime".to_string();
     let chars = "@#MBHA&Gh93X25Sisr;:,. ".to_string();
     let ascGen = AsciiGenerator::new();
     let (intensityMap, charMap) = ascGen.getIntensityDistAndCharMap(&font, &chars);
@@ -30,14 +30,17 @@ where
                 true => ascGen.convertWithDither(&font, &chars, img),
                 false => ascGen.convert(&font, &chars, img),
             },
-            None => vec![vec![0; 1]; 1],
+            None => {
+                vec![0_u8; 0];
+                vec![] as Vec<Vec<u8>>
+            }
         };
         to_string(&art)
     };
 
     view! {
-        <div class="flex-1 h-auto p-8 bg-transparent text-slate-700 overflow-auto font-mono text-sm leading-4">
-            <pre>{asciiArt}</pre>
+        <div class="flex-1 h-auto p-8 bg-transparent overflow-auto">
+            <pre class="font-['Courier_New'] text-slate-700 font-mono text-sm leading-4">{asciiArt}</pre>
         </div>
     }
 }

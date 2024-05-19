@@ -4,7 +4,7 @@ use leptos::*;
 pub fn Select(name: String, label: String) -> impl IntoView {
     view! {
         <fieldset>
-            <label class="text-xl font-medium text-indigo-500" for=name.clone()>
+            <label class="text-xl font-medium text-zinc-800" for=name.clone()>
                 {label}
             </label>
             <select

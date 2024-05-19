@@ -11,5 +11,5 @@ Copy to clipboard ✅
 Optimize the resize operation (run in release) ✅
 
 COMMANDS:
-../../tailwindcss -i ~/Project/rusciii/input.css -o ~/Project/rusciii/style/tailwind.css --watch
+C:\Users\mohni\AppData\Local\Programs\Tailwind\tailwindcss -i input.css -o style\tailwind.css --watch
 trunk serve --open

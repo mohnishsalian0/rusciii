@@ -15,12 +15,12 @@ where
 {
     view! {
         <fieldset>
-            <label class="text-xl font-medium text-indigo-500" for=name.clone()>
+            <label class="text-xl font-medium text-zinc-800" for=name.clone()>
                 {label}
             </label>
             <input
                 id=name.clone()
-                class="w-full px-4 accent-amber-500"
+                class="w-full p-0.5 accent-cyan-600"
                 type="range"
                 min=min
                 max=max

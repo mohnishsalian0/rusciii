@@ -90,19 +90,20 @@ impl AsciiGenerator {
         });
         self.elimDupIntensyChars(&mut chars);
 
-        // Intensity to char map
-        let mut intensityToChar: [Option<u8>; 256] = [None; 256];
-        for c in chars.iter() {
-            intensityToChar[c.intensity as usize] = Some(c.id);
-        }
-
         // Scale intensity to 0-255
         let (minI, maxI) = (chars[0].intensity, chars[chars.len() - 1].intensity);
         let rangeI = maxI - minI;
         let scaledIntensity: Vec<(u8, u8)> = chars
             .iter()
-            .map(|c| (Self::scaleIntensity(c.intensity, minI, rangeI), c.intensity))
+            .map(|c| (Self::scaleIntensity(c.intensity, minI, rangeI), c.id))
             .collect();
+
+        // Intensity to char map
+        let mut intensityToChar: [Option<u8>; 256] = [None; 256];
+        for (i, c) in scaledIntensity.iter() {
+            intensityToChar[*i as usize] = Some(*c);
+        }
+
         let mut intensityDist: [u8; 256] = [0; 256];
         let mut cur: usize = 1;
         for (i, distSlot) in intensityDist.iter_mut().enumerate() {
@@ -111,9 +112,9 @@ impl AsciiGenerator {
                 cur += 1;
             }
             *distSlot = if (gray - scaledIntensity[cur - 1].0 < scaledIntensity[cur].0 - gray) {
-                scaledIntensity[cur - 1].1
+                scaledIntensity[cur - 1].0
             } else {
-                scaledIntensity[cur].1
+                scaledIntensity[cur].0
             }
         }
         (intensityDist, intensityToChar)
@@ -160,6 +161,7 @@ impl AsciiGenerator {
         let ascColorMap = AsciiColorMap::new(intensityMap);
         let mut imgClone = img.clone();
         dither(&mut imgClone, &ascColorMap);
+        let ramp = self.getWeightedRamp(font, chars);
         let (w, h) = imgClone.dimensions();
         let mut asciiArt: Vec<Vec<u8>> = vec![vec![0; w as usize]; h as usize];
         for (x, y, p) in imgClone.enumerate_pixels() {

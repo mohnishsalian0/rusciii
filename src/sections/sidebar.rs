@@ -113,7 +113,7 @@ pub fn Sidebar(
         let (w, h) = gray().expect("Gray image should be set").dimensions();
         let nh = nw * h / w;
         let filter = if nw > w {
-            FilterType::Nearest
+            FilterType::Lanczos3
         } else {
             FilterType::Triangle
         };
@@ -136,37 +136,41 @@ pub fn Sidebar(
     };
 
     view! {
-        <aside class="w-80 h-auto p-8 bg-amber-50 display-flex flex-col space-y-8 overflow-y-auto">
-            {displayImage} {displayInput} <Select name="font".to_string() label="Font".to_string()/>
-            <Slider
-                name="contrast".to_string()
-                label="Contrast".to_string()
-                min=-100
-                max=100
-                value=0
-                onInput=onContrastChange
-            />
-            <Slider
-                name="brightness".to_string()
-                label="Brightness".to_string()
-                min=-100
-                max=100
-                value=0
-                onInput=onBrightnessChange
-            />
-            <Slider
-                name="size".to_string()
-                label="Size".to_string()
-                min=10
-                max=300
-                value=100
-                onInput=onSizeChange
-            />
-            <Toggle
-                name="dither".to_string()
-                label="Dither".to_string()
-                onInput=onDitherChange
-            />
+        <aside class="w-80 h-auto bg-amber-50 overflow-y-auto">
+            {displayImage}
+            {displayInput}
+            <div class="p-8 display-flex flex-col space-y-8">
+                // <Select name="font".to_string() label="Font".to_string()/>
+                <Slider
+                    name="contrast".to_string()
+                    label="Contrast".to_string()
+                    min=-100
+                    max=100
+                    value=0
+                    onInput=onContrastChange
+                />
+                <Slider
+                    name="brightness".to_string()
+                    label="Brightness".to_string()
+                    min=-100
+                    max=100
+                    value=0
+                    onInput=onBrightnessChange
+                />
+                <Slider
+                    name="size".to_string()
+                    label="Size".to_string()
+                    min=10
+                    max=300
+                    value=100
+                    onInput=onSizeChange
+                />
+                <Toggle
+                    name="dither".to_string()
+                    label="Dither".to_string()
+                    onInput=onDitherChange
+                />
+            </div>
         </aside>
     }
 }
